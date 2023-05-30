@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
-import 'to_do_list.dart';
+import 'package:to_do_list/pages/group_form_page/group_form_page.dart';
+import 'package:to_do_list/pages/groups_page/groups_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,9 +15,12 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
       ),
-      home: const ToDoList(),
+      routes: {
+        '/groups': (context) => const GroupsPage(),
+        '/groups/form': (context) => const GroupFromPage(),
+      },
+      initialRoute: '/groups',
     );
   }
 }
