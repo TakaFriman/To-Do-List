@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:to_do_list/pages/groups_page/group_page_model.dart';
 
-class GroupsPage extends StatelessWidget {
+class GroupsPage extends StatefulWidget {
   const GroupsPage({super.key});
 
-  void showForm(BuildContext context) {
-    Navigator.of(context).pushNamed('/groups/form');
+  @override
+  State<GroupsPage> createState() => _GroupsPageState();
+}
+
+class _GroupsPageState extends State<GroupsPage> {
+  final model = GroupPageModel();
+  @override
+  Widget build(BuildContext context) {
+    return GroupPageModelProvider(model: model, child: const GroupsPageBody());
   }
+}
+
+class GroupsPageBody extends StatelessWidget {
+  const GroupsPageBody({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,49 +29,48 @@ class GroupsPage extends StatelessWidget {
       ),
       body: const _GroupList(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showForm(context),
+        onPressed: () => GroupPageModelProvider.read(context)?.model.showForm(context),
         child: const Icon(Icons.add),
       ),
     );
   }
 }
 
-class _GroupList extends StatefulWidget {
+class _GroupList extends StatelessWidget {
   const _GroupList();
 
   @override
-  State<_GroupList> createState() => __GroupListState();
-}
-
-class __GroupListState extends State<_GroupList> {
-  @override
   Widget build(BuildContext context) {
+    final groupsCount = GroupPageModelProvider.watch(context)?.model.groups.length ?? 0;
     return ListView.separated(
-        physics: const BouncingScrollPhysics(),
-        itemBuilder: (BuildContext context, int index) {
-          return const Divider(height: 1);
-        },
-        separatorBuilder: (BuildContext context, int index) {
-          return _GroupListRowWidget(indexList: index);
-        },
-        itemCount: 20);
+      itemCount: groupsCount,
+      physics: const BouncingScrollPhysics(),
+      itemBuilder: (BuildContext context, int index) {
+        return _GroupListRowWidget(indexList: index);
+      },
+      separatorBuilder: (BuildContext context, int index) {
+        return const Divider(height: 1);
+      },
+    );
   }
 }
 
 class _GroupListRowWidget extends StatelessWidget {
-  final int indexList;
   const _GroupListRowWidget({required this.indexList});
 
+  final int indexList;
   @override
   Widget build(BuildContext context) {
+    final model = GroupPageModelProvider.read(context)!.model;
+    final group = model.groups[indexList];
     return Slidable(
       // The end action pane is the one at the right or the bottom side.
-      endActionPane: const ActionPane(
-        motion: BehindMotion(),
+      endActionPane: ActionPane(
+        motion: const BehindMotion(),
         children: [
           SlidableAction(
-            onPressed: null,
-            backgroundColor: Color(0xFFFE4A49),
+            onPressed: (context) => model.deleteGroup(indexList),
+            backgroundColor: const Color(0xFFFE4A49),
             foregroundColor: Colors.white,
             icon: Icons.delete,
             label: 'Delete',
@@ -67,7 +78,7 @@ class _GroupListRowWidget extends StatelessWidget {
         ],
       ),
       child: ListTile(
-        title: const Text('ы'),
+        title: Text(group.name),
         tileColor: Colors.white,
         onTap: () {},
       ),
